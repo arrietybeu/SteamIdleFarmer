@@ -33,6 +33,7 @@ public sealed class SteamKitSteamService : ISteamService, IAsyncDisposable
     private string? _refreshToken;
     private TaskCompletionSource? _connectTcs;
     private int _qrGeneration;
+    private int _reconnectAttempt;
     private AuthStatus _status = new(AuthState.Disconnected, null, null, null);
 
     public SteamKitSteamService(uint loginId, string? deviceName = null)
@@ -247,6 +248,7 @@ public sealed class SteamKitSteamService : ISteamService, IAsyncDisposable
 
     private void OnConnected(SteamClient.ConnectedCallback cb)
     {
+        Interlocked.Exchange(ref _reconnectAttempt, 0); // healthy again — reset the backoff
         _connectTcs?.TrySetResult();
         // Reconnect / resume path: log straight back on if we already hold a token.
         if (_refreshToken is not null && _accountName is not null && _status.State != AuthState.AwaitingQr)
@@ -263,13 +265,26 @@ public sealed class SteamKitSteamService : ISteamService, IAsyncDisposable
             return;
         }
 
-        // Steam does not auto-reconnect. Back off, then reconnect; OnConnected will re-logon.
-        SetStatus(_status with { State = _refreshToken is null ? AuthState.Disconnected : AuthState.LoggingIn });
+        // Without a token there is nothing to log back on with (logged out, or the token died):
+        // stay disconnected instead of reconnecting forever. The QR flow reconnects on demand.
+        if (_refreshToken is null || _accountName is null)
+        {
+            SetStatus(_status with { State = AuthState.Disconnected });
+            return;
+        }
+
+        // Steam does not auto-reconnect. Exponential backoff + jitter so a long Steam outage
+        // can't turn into us hammering the CM servers from one IP (which risks a rate limit).
+        SetStatus(_status with { State = AuthState.LoggingIn });
+        int attempt = Interlocked.Increment(ref _reconnectAttempt);
+        double seconds = Math.Min(5 * Math.Pow(2, Math.Min(attempt - 1, 6)), 300)
+                         + Random.Shared.NextDouble() * 3;
+
         _ = Task.Run(async () =>
         {
             try
             {
-                await Task.Delay(TimeSpan.FromSeconds(5), _cts.Token).ConfigureAwait(false);
+                await Task.Delay(TimeSpan.FromSeconds(seconds), _cts.Token).ConfigureAwait(false);
                 if (!_cts.IsCancellationRequested)
                     _client.Connect();
             }
