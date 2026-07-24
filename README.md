@@ -9,25 +9,20 @@ the publisher locks server-side are detected and disabled up front, so a run nev
 stalls on something that can't be set. The whole interface runs in English or Vietnamese and
 updates live over WebSocket — the other tab, "Idle to 100%", is where long unattended runs live.*
 
-Self-hosted web tool to idle Steam playtime and unlock achievements on **your own**
-account. Log in with a QR code (Steam Mobile) — no password. Each browser is its own
-session, so friends can log in and farm their own accounts. Built to run 24/7 on a VPS.
+Self-hosted web tool to idle Steam playtime and unlock achievements on **your own** account.
+QR login via Steam Mobile, no password. Each browser is its own session, so friends can farm
+their own accounts. Built to run 24/7 on a VPS.
 
-**Two features**
-
-1. **Idle to 100%** — pick games, set hours (default 200); it idles them (real playtime +
-   "in-game" status) and drips the unlockable achievements evenly until the game hits 100%.
-2. **Manual unlock** — pick a game, tick achievements, unlock instantly (SAM-style).
+- **Idle to 100%** — pick games, set hours, it idles them and drips achievements until 100%.
+- **Manual unlock** — pick a game, tick achievements, unlock instantly (SAM-style).
 
 ## ⚠️ Read first
 
-- Violates Steam's ToS (fake playtime + spoofed achievements). The account-limit risk is
-  real — use at your own risk, on accounts you own.
-- **Never** use it on VAC / anti-cheat online games. Protected (server-side) achievements
-  are detected and skipped automatically.
-- Refresh tokens are encrypted at rest (AES-GCM, key from `FARMER_SECRET`). Many accounts
-  farming from one VPS IP draw more attention.
-- Playtime only accrues while the VPS is up and logged in — 200h means 200h of real idling.
+- Breaks Steam's ToS — the account-limit risk is real. Use it on accounts you own.
+- **Never** on VAC / anti-cheat games. Server-side protected achievements are auto-skipped.
+- Playtime only accrues while the VPS is up and logged in.
+- Tokens are encrypted at rest, but the server operator still holds them — only log in
+  somewhere you trust.
 
 ## Quick start (Docker)
 
@@ -62,17 +57,13 @@ Run the tests: `cd backend && dotnet test`.
 | `FARMER_DEVICE_NAME` | `SteamIdleFarmer` | Name shown in the Steam Mobile confirmation. |
 | `PORT` | `5080` | HTTP port. |
 
-## Stack & notes
+## Stack
 
-.NET 10 (ASP.NET Core) on **SteamKit2** · **React + Vite** frontend · **SQLite**. The backend
-serves the built frontend. When you expose it publicly, put it behind a reverse proxy with
-TLS and authentication.
+.NET 10 (ASP.NET Core) on **SteamKit2** · **React + Vite** · **SQLite**. The backend serves the
+built frontend. Expose it publicly only behind a reverse proxy with TLS.
 
-## License
+## License & credits
 
-[MIT](LICENSE) © 2026 arrietybeu
-
-## Credits
-
-- Steam networking via [SteamKit2](https://github.com/SteamRE/SteamKit).
-- Achievement handling inspired by [gibbed's SteamAchievementManager](https://github.com/gibbed/SteamAchievementManager).
+[MIT](LICENSE) © 2026 arrietybeu · Steam networking via
+[SteamKit2](https://github.com/SteamRE/SteamKit) · achievement handling inspired by
+[gibbed's SteamAchievementManager](https://github.com/gibbed/SteamAchievementManager).
