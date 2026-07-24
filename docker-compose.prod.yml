@@ -1,0 +1,16 @@
+# Production: run the prebuilt image from GHCR (no local build).
+# On the VPS:  docker compose -f docker-compose.prod.yml up -d
+# Update:      docker compose -f docker-compose.prod.yml pull && docker compose -f docker-compose.prod.yml up -d
+services:
+  farmer:
+    image: ghcr.io/arrietybeu/steamidlefarmer:latest
+    container_name: steam-idle-farmer
+    restart: unless-stopped
+    ports:
+      - "5080:5080"
+    volumes:
+      - ./data:/data
+    environment:
+      - FARMER_SECRET=${FARMER_SECRET:?set a strong FARMER_SECRET in .env}
+      - FARMER_ACCESS_PASSWORD=${FARMER_ACCESS_PASSWORD:-}
+      - FARMER_DEVICE_NAME=${FARMER_DEVICE_NAME:-SteamIdleFarmer}
