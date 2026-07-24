@@ -336,14 +336,24 @@ public sealed class SteamKitSteamService : ISteamService, IAsyncDisposable
 
     public Task SetPlayingGamesAsync(IReadOnlyCollection<uint> appIds, CancellationToken ct = default)
     {
+        var desired = appIds.Take(32).ToHashSet(); // Steam network cap
+
+        bool changed;
         lock (_gate)
         {
-            _playingGames.Clear();
-            foreach (var appId in appIds.Take(32)) // Steam network cap
-                _playingGames.Add(appId);
+            changed = !_playingGames.SetEquals(desired);
+            if (changed)
+            {
+                _playingGames.Clear();
+                foreach (var appId in desired)
+                    _playingGames.Add(appId);
+            }
         }
 
-        if (_client.IsConnected && _status.State == AuthState.LoggedIn)
+        // Only resend when the SET actually changes. Re-sending an identical set makes Steam end the
+        // current play session and start a new one — doing that on every achievement unlock chops the
+        // session into fragments and playtime never accumulates.
+        if (changed && _client.IsConnected && _status.State == AuthState.LoggedIn)
             ResendPlayingGames();
         return Task.CompletedTask;
     }
