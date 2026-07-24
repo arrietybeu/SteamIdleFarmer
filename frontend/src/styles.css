@@ -1693,6 +1693,30 @@ input {
   font-weight: 500;
 }
 
+.job-card__progress {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.job-card__progress > :first-child {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.job-card__pct {
+  flex: 0 0 auto;
+  min-width: 40px;
+  text-align: right;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--text-dim);
+}
+
+.job-card__pct--done {
+  color: var(--gold-hi);
+}
+
 .job-card__foot {
   display: flex;
   align-items: center;

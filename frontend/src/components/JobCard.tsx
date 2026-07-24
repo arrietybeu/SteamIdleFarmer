@@ -52,6 +52,12 @@ export function JobCard({ job, busy, onPause, onResume, onDelete }: Props) {
   const achievementsDone =
     job.totalAchievable > 0 && job.unlockedCount >= job.totalAchievable;
 
+  // Percent of unlockable achievements done — `4/170` alone is hard to eyeball.
+  const percent =
+    job.totalAchievable > 0
+      ? Math.floor((job.unlockedCount / job.totalAchievable) * 100)
+      : null;
+
   return (
     <article className={`job-card glass job-card--${job.state}`}>
       <header className="job-card__head">
@@ -80,11 +86,20 @@ export function JobCard({ job, busy, onPause, onResume, onDelete }: Props) {
         </div>
       </div>
 
-      <ProgressBar
-        value={job.unlockedCount}
-        max={job.totalAchievable}
-        gold={achievementsDone || job.state === "completed"}
-      />
+      <div className="job-card__progress">
+        <ProgressBar
+          value={job.unlockedCount}
+          max={job.totalAchievable}
+          gold={achievementsDone || job.state === "completed"}
+        />
+        {percent !== null && (
+          <span
+            className={`job-card__pct num${achievementsDone ? " job-card__pct--done" : ""}`}
+          >
+            {percent}%
+          </span>
+        )}
+      </div>
 
       <div className="job-card__foot">
         <span className="job-card__next">
