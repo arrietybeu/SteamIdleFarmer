@@ -374,6 +374,23 @@ public sealed class SteamKitSteamService : ISteamService, IAsyncDisposable
     public async Task<IReadOnlyList<AchievementInfo>> GetAchievementsAsync(uint appId, CancellationToken ct = default)
     {
         var stats = await _achievements.GetAchievementsAsync(appId, ct).ConfigureAwait(false);
+
+        // null means the request itself failed (timeout / dropped connection) — NOT "this game has
+        // no achievements". Retry once so a transient blip can't silently create a job with an
+        // empty schedule that then idles forever without unlocking anything.
+        if (stats is null)
+        {
+            try
+            {
+                await Task.Delay(TimeSpan.FromSeconds(2), ct).ConfigureAwait(false);
+            }
+            catch (OperationCanceledException)
+            {
+                return [];
+            }
+            stats = await _achievements.GetAchievementsAsync(appId, ct).ConfigureAwait(false);
+        }
+
         if (stats is null)
             return [];
 
