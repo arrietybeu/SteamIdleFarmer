@@ -136,6 +136,31 @@ public class JobManagerTests
     }
 
     [Fact]
+    public async Task Tick_PersistsAccruedTime_SoARestartKeepsProgress()
+    {
+        var t0 = new DateTimeOffset(2026, 1, 1, 0, 0, 0, TimeSpan.Zero);
+        var clock = new TestClock(t0);
+        var steam = new FakeSteam();
+        steam.Catalog[100] = [Ach("A"), Ach("B"), Ach("C"), Ach("D")];
+        var store = new InMemoryStore();
+        var jm = new JobManager(steam, store, 123, clock);
+
+        await jm.CreateJobsAsync([100], hoursPerGame: 10, jitterPct: 0);
+
+        // Idle for 3 hours, then tick — the tick must fold that span into accrued time and save it.
+        clock.Now = t0.AddHours(3);
+        await jm.TickAsync();
+
+        // Simulate a service restart: a brand-new manager reading the same store.
+        var restarted = new JobManager(steam, store, 123, clock);
+        await restarted.InitializeAsync();
+
+        // The 3 hours of idling must survive; otherwise unlocks drift and playtime shows 0.
+        var job = restarted.Snapshot().Single();
+        Assert.Equal(3 * 3600, Scheduler.CurrentAccruedSeconds(job, clock.Now), 1);
+    }
+
+    [Fact]
     public async Task Initialize_ResumesRunningJobs_WithoutCountingDowntime()
     {
         var t0 = new DateTimeOffset(2026, 1, 1, 0, 0, 0, TimeSpan.Zero);

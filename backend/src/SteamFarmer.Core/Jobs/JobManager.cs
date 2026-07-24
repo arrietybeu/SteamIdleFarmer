@@ -114,10 +114,11 @@ public sealed class JobManager
         try { running = _jobs.Values.Where(j => j.State == JobState.Running).ToList(); }
         finally { _gate.Release(); }
 
-        bool changed = false;
+        bool anyChanged = false;
 
         foreach (var job in running)
         {
+            bool jobChanged = false;
             var due = Scheduler.DueUnlocks(job, now);
             if (due.Count > 0)
             {
@@ -134,7 +135,7 @@ public sealed class JobManager
                     {
                         unlock.Unlocked = true;
                         unlock.UnlockedAtUtc = now;
-                        changed = true;
+                        jobChanged = true;
                         AchievementUnlocked?.Invoke(job, unlock);
                     }
                     else if (res.Error is not null &&
@@ -145,28 +146,35 @@ public sealed class JobManager
                         unlock.Unlocked = true;
                         unlock.UnlockedAtUtc = now;
                         job.Error = "Một số thành tựu không mở được (protected/không tồn tại) đã bị bỏ qua.";
-                        changed = true;
+                        jobChanged = true;
                     }
                     // else: transient — leave pending for the next tick.
                 }
             }
 
+            // Fold the elapsed span into AccruedRunningSeconds on EVERY tick. Without this the
+            // running span only ever lives in memory, and a restart (which re-stamps
+            // LastResumedAtUtc) throws it away — leaving a job with unlocked achievements but a
+            // playtime counter reset toward zero, and pushing the remaining unlocks out.
+            Scheduler.FoldActiveSpan(job, now);
+
             if (Scheduler.CurrentAccruedSeconds(job, now) >= job.HoursTarget * 3600.0 && Scheduler.IsComplete(job))
             {
-                Scheduler.Pause(job, now);      // fold the final span into accrued
+                Scheduler.Pause(job, now);
                 job.State = JobState.Completed;
-                changed = true;
+                jobChanged = true;
             }
 
-            if (changed)
-                await _store.UpsertAsync(job).ConfigureAwait(false);
+            // Always persist: the folded accrual has to survive a restart even when nothing unlocked.
+            await _store.UpsertAsync(job).ConfigureAwait(false);
+            anyChanged |= jobChanged;
         }
 
-        if (changed)
-        {
+        if (anyChanged)
             await SyncPlayingAsync().ConfigureAwait(false);
-            JobsChanged?.Invoke();
-        }
+
+        if (running.Count > 0)
+            JobsChanged?.Invoke(); // keeps live progress flowing to the UI each tick
     }
 
     public Task PauseAsync(string jobId) => MutateAsync(jobId, job => Scheduler.Pause(job, _clock.GetUtcNow()));
