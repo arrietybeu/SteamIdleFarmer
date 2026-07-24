@@ -104,6 +104,9 @@ export function JobCard({ job, busy, onPause, onResume, onDelete }: Props) {
             t("job.failedNote")
           ) : job.state === "completed" ? (
             t("job.doneNote")
+          ) : job.totalAchievable === 0 ? (
+            // Idling normally, there is just nothing to drip (all protected or already unlocked).
+            t("job.playtimeOnly")
           ) : (
             t("job.waitingNote")
           )}

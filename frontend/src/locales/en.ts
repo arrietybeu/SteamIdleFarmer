@@ -154,6 +154,7 @@ export const en = {
   "job.failedNote": "Job ran into an error",
   "job.doneNote": "Done",
   "job.waitingNote": "Waiting its turn",
+  "job.playtimeOnly": "Nothing left to unlock — accruing playtime only",
   "job.pause": "Pause",
   "job.pauseAria": "Pause {name}",
   "job.resume": "Resume",

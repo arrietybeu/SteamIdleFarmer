@@ -151,6 +151,7 @@ export const vi: Record<keyof typeof en, string> = {
   "job.failedNote": "Job gặp lỗi",
   "job.doneNote": "Đã xong",
   "job.waitingNote": "Đang chờ lượt",
+  "job.playtimeOnly": "Không còn thành tựu để mở — chỉ cộng giờ chơi",
   "job.pause": "Tạm dừng",
   "job.pauseAria": "Tạm dừng {name}",
   "job.resume": "Chạy tiếp",
