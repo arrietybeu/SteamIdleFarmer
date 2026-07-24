@@ -7,7 +7,7 @@ import { en } from "./en";
 
 export const vi: Record<keyof typeof en, string> = {
   /* ---------------------------------------------------------------- brand -- */
-  "brand.name": "Xưởng Cày",
+  "brand.name": "Grind Forge",
   "brand.taglineAuth": "Steam idle & achievement farmer",
   "brand.taglineBar": "Steam idle & achievement",
 

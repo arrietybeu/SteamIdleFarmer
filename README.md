@@ -1,6 +1,6 @@
 <div align="center">
 
-# Xưởng Cày
+# Grind Forge
 
 **Steam idle & achievement farmer.** Park it on a VPS, log in with a QR code,
 and let it farm playtime and achievements on your own account — 24/7, from any browser.
@@ -12,7 +12,7 @@ and let it farm playtime and achievements on your own account — 24/7, from any
 [![React](https://img.shields.io/badge/React-19-61DAFB?style=flat-square&logo=react&logoColor=black)](#stack)
 [![Stars](https://img.shields.io/github/stars/arrietybeu/SteamIdleFarmer?style=flat-square&color=f0b43c)](https://github.com/arrietybeu/SteamIdleFarmer/stargazers)
 
-<img src="assets/Screenshot.png" alt="Xưởng Cày — the manual achievement unlock view" width="100%">
+<img src="assets/Screenshot.png" alt="Grind Forge — the manual achievement unlock view" width="100%">
 
 </div>
 

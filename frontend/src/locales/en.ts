@@ -10,7 +10,7 @@
  */
 export const en = {
   /* ---------------------------------------------------------------- brand -- */
-  "brand.name": "Xưởng Cày",
+  "brand.name": "Grind Forge",
   "brand.taglineAuth": "Steam idle & achievement farmer",
   "brand.taglineBar": "Steam idle & achievement",
 

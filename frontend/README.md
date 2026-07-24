@@ -1,4 +1,4 @@
-# Xưởng Cày — Frontend
+# Grind Forge — Frontend
 
 Giao diện web cho **Steam Idle & Achievement Farmer** (React + Vite + TypeScript).
 App đa người dùng: mỗi trình duyệt là một phiên riêng, ai đăng nhập Steam của người nấy.
