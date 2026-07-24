@@ -1,0 +1,17 @@
+services:
+  farmer:
+    build: .
+    image: steam-idle-farmer
+    container_name: steam-idle-farmer
+    restart: unless-stopped
+    ports:
+      - "5080:5080"
+    volumes:
+      - ./data:/data
+    environment:
+      # REQUIRED in production: encrypts stored Steam refresh tokens at rest.
+      - FARMER_SECRET=${FARMER_SECRET:?set a strong FARMER_SECRET in .env}
+      # OPTIONAL app-level access gate. Prefer a reverse proxy (see README). Leave empty to disable.
+      - FARMER_ACCESS_PASSWORD=${FARMER_ACCESS_PASSWORD:-}
+      # Name shown in the Steam Mobile app confirmation dialog.
+      - FARMER_DEVICE_NAME=${FARMER_DEVICE_NAME:-SteamIdleFarmer}

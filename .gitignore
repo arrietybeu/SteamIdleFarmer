@@ -1,0 +1,23 @@
+# .NET
+bin/
+obj/
+*.user
+
+# Node
+node_modules/
+frontend/dist/
+
+# Data & secrets
+data/
+*.db
+*.db-wal
+*.db-shm
+.env
+
+# Design spec (kept local only, not committed/pushed)
+docs/superpowers/specs/
+
+# OS/editor
+.DS_Store
+.vs/
+.idea/

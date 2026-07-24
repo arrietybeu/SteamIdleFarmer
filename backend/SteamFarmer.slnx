@@ -1,0 +1,9 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/SteamFarmer.Api/SteamFarmer.Api.csproj" />
+    <Project Path="src/SteamFarmer.Core/SteamFarmer.Core.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/SteamFarmer.Core.Tests/SteamFarmer.Core.Tests.csproj" />
+  </Folder>
+</Solution>
