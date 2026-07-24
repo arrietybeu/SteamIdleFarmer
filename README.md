@@ -12,16 +12,16 @@ and let it farm playtime and achievements on your own account — 24/7, from any
 [![React](https://img.shields.io/badge/React-19-61DAFB?style=flat-square&logo=react&logoColor=black)](#stack)
 [![Stars](https://img.shields.io/github/stars/arrietybeu/SteamIdleFarmer?style=flat-square&color=f0b43c)](https://github.com/arrietybeu/SteamIdleFarmer/stargazers)
 
-<img src="assets/Screenshot.png" alt="Grind Forge — the manual achievement unlock view" width="100%">
+<img src="assets/Screenshot.png" alt="Grind Forge — idling two games toward 100% achievements" width="100%">
 
 </div>
 
-> *The manual-unlock view. Your Steam library sits on the left with real playtime per game;
-> pick one and it loads every achievement that game has — icon, description, and current state.
-> Diablo IV here is finished at 45/45. Tick whichever ones you want and hit unlock. Achievements
-> the publisher locks server-side are detected and disabled up front, so a run never silently
-> stalls on something that can't be set. The whole interface runs in English or Vietnamese and
-> updates live over WebSocket — the other tab, "Idle to 100%", is where long unattended runs live.*
+> *The "Idle to 100%" tab mid-run. Your Steam library sits on the left with real playtime per game;
+> pick up to 32, set a target in hours, and each game gets its own drip schedule. Resident Evil 3 has
+> finished here — 32/32 achievements across a one-hour target — while Icarus is 20/170 in with the
+> next unlock counting down. Progress is measured in accrued idling time, so pausing or rebooting
+> freezes it instead of skipping ahead. The other tab, "Manual unlock", lets you tick achievements
+> and grant them instantly. Everything runs in English or Vietnamese and updates live over WebSocket.*
 
 ---
 
