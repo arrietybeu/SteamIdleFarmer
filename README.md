@@ -1,40 +1,114 @@
-# Steam Idle & Achievement Farmer ("Xưởng Cày")
+<div align="center">
 
-![Xưởng Cày — the manual achievement unlock view](assets/Screenshot.png)
+# 🏆 Xưởng Cày
 
-*The manual-unlock view. Your Steam library sits on the left with real playtime per game;
-pick one and it loads every achievement that game has — icon, description, and current state.
-Diablo IV here is finished at 45/45. Tick whichever ones you want and hit unlock. Achievements
-the publisher locks server-side are detected and disabled up front, so a run never silently
-stalls on something that can't be set. The whole interface runs in English or Vietnamese and
-updates live over WebSocket — the other tab, "Idle to 100%", is where long unattended runs live.*
+**Steam idle & achievement farmer.** Park it on a VPS, log in with a QR code,
+and let it farm playtime and achievements on your own account — 24/7, from any browser.
 
-Self-hosted web tool to idle Steam playtime and unlock achievements on **your own** account.
-QR login via Steam Mobile, no password. Each browser is its own session, so friends can farm
-their own accounts. Built to run 24/7 on a VPS.
+[![License](https://img.shields.io/badge/license-MIT-f0b43c?style=flat-square)](LICENSE)
+[![Build](https://img.shields.io/github/actions/workflow/status/arrietybeu/SteamIdleFarmer/docker-image.yml?branch=main&style=flat-square&label=build)](https://github.com/arrietybeu/SteamIdleFarmer/actions/workflows/docker-image.yml)
+[![Container](https://img.shields.io/badge/ghcr.io-container-2496ED?style=flat-square&logo=docker&logoColor=white)](https://github.com/arrietybeu/SteamIdleFarmer/pkgs/container/steamidlefarmer)
+[![.NET](https://img.shields.io/badge/.NET-10-512BD4?style=flat-square&logo=dotnet&logoColor=white)](#stack)
+[![React](https://img.shields.io/badge/React-19-61DAFB?style=flat-square&logo=react&logoColor=black)](#stack)
+[![Stars](https://img.shields.io/github/stars/arrietybeu/SteamIdleFarmer?style=flat-square&color=f0b43c)](https://github.com/arrietybeu/SteamIdleFarmer/stargazers)
 
-- **Idle to 100%** — pick games, set hours, it idles them and drips achievements until 100%.
-- **Manual unlock** — pick a game, tick achievements, unlock instantly (SAM-style).
+<img src="assets/Screenshot.png" alt="Xưởng Cày — the manual achievement unlock view" width="100%">
 
-## ⚠️ Read first
+</div>
+
+> *The manual-unlock view. Your Steam library sits on the left with real playtime per game;
+> pick one and it loads every achievement that game has — icon, description, and current state.
+> Diablo IV here is finished at 45/45. Tick whichever ones you want and hit unlock. Achievements
+> the publisher locks server-side are detected and disabled up front, so a run never silently
+> stalls on something that can't be set. The whole interface runs in English or Vietnamese and
+> updates live over WebSocket — the other tab, "Idle to 100%", is where long unattended runs live.*
+
+---
+
+## Features
+
+| | |
+|---|---|
+| ⏳ **Idle to 100%** | Pick games, set a target in hours. It idles them for real playtime and drips the unlockable achievements evenly across that window until the game hits 100%. |
+| 🎯 **Manual unlock** | Pick a game, tick the achievements you want, unlock instantly — SAM-style, straight from the browser. |
+| 👥 **Multi-user** | Every browser is its own session with its own Steam login. Share the URL and friends farm their own accounts, isolated from each other. |
+| 📱 **QR login** | Scan with Steam Mobile. No password is ever typed, stored, or seen by the server. |
+| 🔄 **Survives everything** | Sessions resume after a VPS reboot, reconnect with backoff after a Steam outage, and freeze progress instead of losing it. |
+| 🌐 **EN / VI** | Full English and Vietnamese UI, switchable anywhere. |
+
+## Quick start
+
+No clone, no build — every push to `main` publishes a ready image to GHCR:
+
+```bash
+mkdir farmer && cd farmer
+curl -O https://raw.githubusercontent.com/arrietybeu/SteamIdleFarmer/main/docker-compose.prod.yml
+printf 'FARMER_SECRET=%s\n' "$(openssl rand -base64 48)" > .env
+docker compose -f docker-compose.prod.yml up -d
+```
+
+Open `http://<vps-ip>:5080` → **Log in with Steam** → scan the QR → pick games → idle or unlock.
+The encrypted database lives in `./data`.
+
+Update to the newest build any time:
+
+```bash
+docker compose -f docker-compose.prod.yml pull && docker compose -f docker-compose.prod.yml up -d
+```
+
+<details>
+<summary><b>Prefer to build it yourself?</b></summary>
+
+```bash
+git clone https://github.com/arrietybeu/SteamIdleFarmer && cd SteamIdleFarmer
+cp .env.example .env      # set FARMER_SECRET, e.g. openssl rand -base64 48
+docker compose up -d --build
+```
+
+</details>
+
+## ⚠️ Before you start
 
 - Breaks Steam's ToS — the account-limit risk is real. Use it on accounts you own.
 - **Never** on VAC / anti-cheat games. Server-side protected achievements are auto-skipped.
 - Playtime only accrues while the VPS is up and logged in.
 - Tokens are encrypted at rest, but the server operator still holds them — only log in
-  somewhere you trust.
+  somewhere you trust, and only invite people who trust you.
+- Many accounts farming from a single VPS IP draw more attention than one.
 
-## Quick start (Docker)
+## Which games actually work?
 
-```bash
-cp .env.example .env      # set a strong FARMER_SECRET, e.g. openssl rand -base64 48
-docker compose up -d --build
-```
+| Game type | Works | Why |
+|---|:---:|---|
+| Single-player / offline titles | ✅ | Achievements are settable by the client — the normal case. |
+| Publisher-locked achievements | ❌ | Steam only accepts writes from the publisher's own servers. Detected up front and skipped, so a run never stalls. |
+| VAC / anti-cheat online games | ⛔ | Technically blocked *and* not worth the account risk. Don't. |
 
-Open `http://<vps-ip>:5080` → **Log in with Steam** → scan the QR → pick games → idle or
-unlock. Data (the encrypted DB) lives in `./data`.
+A game showing `0/0` isn't a bug — it means nothing is left to unlock, either because you
+already earned everything or because the publisher locked it.
 
-## Development
+## How it works
+
+Achievements are spread evenly across your target hours with a little random jitter, so unlocks
+never land on a suspiciously perfect clock. Crucially, the schedule is measured in **accrued
+idling time, not wall-clock time**: pause a job or reboot the VPS and progress freezes rather
+than skipping ahead, keeping unlocks in step with the playtime Steam actually recorded.
+
+<details>
+<summary><b>Configuration</b></summary>
+
+| Variable | Default | Purpose |
+|---|---|---|
+| `FARMER_SECRET` | — | Encrypts stored Steam refresh tokens. Set it in production. |
+| `FARMER_ACCESS_PASSWORD` | off | Optional app-level access gate for a public instance. |
+| `FARMER_DEVICE_NAME` | `SteamIdleFarmer` | Name shown in the Steam Mobile confirmation. |
+| `FARMER_DATA_DIR` | `/data` | Where the SQLite database lives. |
+| `PORT` | `5080` | HTTP port. |
+
+</details>
+
+<details>
+<summary><b>Development</b></summary>
 
 Requires **.NET SDK 10** and **Node 22**.
 
@@ -48,22 +122,15 @@ cd frontend && npm install && npm run dev
 
 Run the tests: `cd backend && dotnet test`.
 
-## Configuration (env)
-
-| Variable | Default | Purpose |
-|---|---|---|
-| `FARMER_SECRET` | — | Encrypts stored Steam refresh tokens. Set it in production. |
-| `FARMER_ACCESS_PASSWORD` | off | Optional app-level access gate for a public instance. |
-| `FARMER_DEVICE_NAME` | `SteamIdleFarmer` | Name shown in the Steam Mobile confirmation. |
-| `PORT` | `5080` | HTTP port. |
+</details>
 
 ## Stack
 
-.NET 10 (ASP.NET Core) on **SteamKit2** · **React + Vite** · **SQLite**. The backend serves the
-built frontend. Expose it publicly only behind a reverse proxy with TLS.
+.NET 10 (ASP.NET Core) on **SteamKit2** · **React 19 + Vite** · **SQLite**. The backend serves the
+built frontend as a single container. Expose it publicly only behind a reverse proxy with TLS.
 
 ## License & credits
 
-[MIT](LICENSE) © 2026 arrietybeu · Steam networking via
+[MIT](LICENSE) © 2026 [arrietybeu](https://github.com/arrietybeu) · Steam networking via
 [SteamKit2](https://github.com/SteamRE/SteamKit) · achievement handling inspired by
 [gibbed's SteamAchievementManager](https://github.com/gibbed/SteamAchievementManager).
