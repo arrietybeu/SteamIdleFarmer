@@ -1,5 +1,14 @@
 # Steam Idle & Achievement Farmer ("Xưởng Cày")
 
+![Xưởng Cày — the manual achievement unlock view](assets/Screenshot.png)
+
+*The manual-unlock view. Your Steam library sits on the left with real playtime per game;
+pick one and it loads every achievement that game has — icon, description, and current state.
+Diablo IV here is finished at 45/45. Tick whichever ones you want and hit unlock. Achievements
+the publisher locks server-side are detected and disabled up front, so a run never silently
+stalls on something that can't be set. The whole interface runs in English or Vietnamese and
+updates live over WebSocket — the other tab, "Idle to 100%", is where long unattended runs live.*
+
 Self-hosted web tool to idle Steam playtime and unlock achievements on **your own**
 account. Log in with a QR code (Steam Mobile) — no password. Each browser is its own
 session, so friends can log in and farm their own accounts. Built to run 24/7 on a VPS.
