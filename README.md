@@ -1,6 +1,6 @@
 <div align="center">
 
-# 🏆 Xưởng Cày
+# Xưởng Cày
 
 **Steam idle & achievement farmer.** Park it on a VPS, log in with a QR code,
 and let it farm playtime and achievements on your own account — 24/7, from any browser.
@@ -27,14 +27,14 @@ and let it farm playtime and achievements on your own account — 24/7, from any
 
 ## Features
 
-| | |
+| Feature | What it does |
 |---|---|
-| ⏳ **Idle to 100%** | Pick games, set a target in hours. It idles them for real playtime and drips the unlockable achievements evenly across that window until the game hits 100%. |
-| 🎯 **Manual unlock** | Pick a game, tick the achievements you want, unlock instantly — SAM-style, straight from the browser. |
-| 👥 **Multi-user** | Every browser is its own session with its own Steam login. Share the URL and friends farm their own accounts, isolated from each other. |
-| 📱 **QR login** | Scan with Steam Mobile. No password is ever typed, stored, or seen by the server. |
-| 🔄 **Survives everything** | Sessions resume after a VPS reboot, reconnect with backoff after a Steam outage, and freeze progress instead of losing it. |
-| 🌐 **EN / VI** | Full English and Vietnamese UI, switchable anywhere. |
+| **Idle to 100%** | Pick games, set a target in hours. It idles them for real playtime and drips the unlockable achievements evenly across that window until the game hits 100%. |
+| **Manual unlock** | Pick a game, tick the achievements you want, unlock instantly — SAM-style, straight from the browser. |
+| **Multi-user** | Every browser is its own session with its own Steam login. Share the URL and friends farm their own accounts, isolated from each other. |
+| **QR login** | Scan with Steam Mobile. No password is ever typed, stored, or seen by the server. |
+| **Resilient** | Sessions resume after a VPS reboot, reconnect with backoff after a Steam outage, and freeze progress instead of losing it. |
+| **English / Vietnamese** | Full bilingual UI, switchable anywhere. |
 
 ## Quick start
 
@@ -67,7 +67,7 @@ docker compose up -d --build
 
 </details>
 
-## ⚠️ Before you start
+## Before you start
 
 - Breaks Steam's ToS — the account-limit risk is real. Use it on accounts you own.
 - **Never** on VAC / anti-cheat games. Server-side protected achievements are auto-skipped.
@@ -80,9 +80,9 @@ docker compose up -d --build
 
 | Game type | Works | Why |
 |---|:---:|---|
-| Single-player / offline titles | ✅ | Achievements are settable by the client — the normal case. |
-| Publisher-locked achievements | ❌ | Steam only accepts writes from the publisher's own servers. Detected up front and skipped, so a run never stalls. |
-| VAC / anti-cheat online games | ⛔ | Technically blocked *and* not worth the account risk. Don't. |
+| Single-player / offline titles | **Yes** | Achievements are settable by the client — the normal case. |
+| Publisher-locked achievements | **No** | Steam only accepts writes from the publisher's own servers. Detected up front and skipped, so a run never stalls. |
+| VAC / anti-cheat online games | **Never** | Technically blocked *and* not worth the account risk. |
 
 A game showing `0/0` isn't a bug — it means nothing is left to unlock, either because you
 already earned everything or because the publisher locked it.
